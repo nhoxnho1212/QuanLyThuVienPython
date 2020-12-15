@@ -1,0 +1,8 @@
+# LibraryManagement
+
+## dotenv
+```bash
+FLASK_ENV=dev
+SECRET_KEY=$PRIVATE_KEY
+SQLALCHEMY_DATABASE_URI=$DATABASE_URL
+```
