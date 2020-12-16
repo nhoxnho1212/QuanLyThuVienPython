@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+
+    <!-- Vuetify -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- Style -->
+    <link rel="stylesheet" href="{{  url_for('static',filename='css/style.css') }}">
+</head>
+<body>
+
+<div id="app">
+    <v-app >
+        <v-app-bar
+                fix
+                flat
+                color="deep-purple accent-4"
+                dark
+                app
+        >
+            <v-app-bar-nav-icon @click.stop="drawer = !drawer" ></v-app-bar-nav-icon>
+
+            <v-toolbar-title>Daskboard</v-toolbar-title>
+
+            <v-spacer></v-spacer>
+        </v-app-bar>
+
+        <v-navigation-drawer
+                v-model="drawer"
+                left
+                app
+        >
+            <v-list nav dense>
+                <v-list-item class="px-2">
+                    <v-list-item-avatar size="47">
+                        <v-badge
+                                bordered
+                                bottom
+                                color="green"
+                                dot
+                                offset-x="10"
+                                offset-y="10"
+                        >
+                            <v-avatar color="indigo" size="39">
+                                <img
+                                        src="https://cdn.vuetifyjs.com/images/john.jpg"
+                                        alt="John"
+                                >
+                            </v-avatar>
+                        </v-badge>
+                    </v-list-item-avatar>
+                </v-list-item>
+
+                <v-list-item link>
+                    <v-list-item-content>
+                        <v-list-item-title class="title">
+                            {{ user_payload['firstname'] + ' ' + user_payload['lastname'] }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle>{{ user_payload['email'] }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                </v-list-item>
+            </v-list>
+
+            <v-divider></v-divider>
+
+            <v-tabs vertical v-model="tab">
+                <v-tab class='justify-content-left' @click="loadUserProfile()">
+                    <v-icon left>
+                        mdi-account-multiple
+                    </v-icon>
+                    My Profile
+                </v-tab>
+                <v-tab class='justify-content-left'>
+                    <v-icon left>
+                        mdi-library-books
+                    </v-icon>
+                    Book management
+                </v-tab>
+
+                <div class="m-2">
+                    <form id="logout"
+                          action="/logout"
+                          method="GET">
+                        <v-btn class="btn-grad" width="90%"  type="submit" form="logout">
+                            Logout
+                        </v-btn>
+                    </form>
+                </div>
+        </v-navigation-drawer>
+
+
+        <v-main >
+            <v-tabs-items v-model="tab">
+                <!-- User profile -->
+                <v-tab-item class="mx-auto my-12 px-10 rounded-xl" >
+                    <v-card class="overflow-hidden " color="gray lighten-1">
+                        <v-toolbar flat color="primary">
+                            <v-icon color="white">mdi-account</v-icon>
+                            <v-toolbar-title class="font-weight-light white--text">
+                                User Profile
+                            </v-toolbar-title>
+                            <v-spacer></v-spacer>
+                            <v-btn color="red" fab small @click="isEditing = !isEditing">
+                                <v-icon v-if="isEditing"> mdi-close </v-icon>
+                                <v-icon v-else> mdi-pencil </v-icon>
+                            </v-btn>
+                        </v-toolbar>
+                        <v-card-text>
+                            <v-form
+                                    v-model="valid"
+                                    id="check-registry-form"
+                                    action="/registry"
+                                    method="POST"
+                            >
+                                <v-text-field :disabled="!isEditing" v-model="lastName" :rules="nameRules" :counter="10"
+                                              label="Last name" required></v-text-field>
+
+                                <v-text-field :disabled="!isEditing" v-model="firstName" :rules="nameRules"
+                                              :counter="10" label="First name" required></v-text-field>
+                                <v-text-field disabled=true v-model="email" :rules="emailRules" label="E-mail"
+                                              required></v-text-field>
+                                <v-text-field v-model="password" :disabled="!isEditing"
+                                              :append-icon="showPwd ? 'mdi-eye' : 'mdi-eye-off'"
+                                              :type="showPwd ? 'text' : 'password'" label="Password" :rules="passwordRules"
+                                              counter @click:append="showPwd = !showPwd"></v-text-field>
+                                <v-text-field v-model="confirmPwd" :disabled="!isEditing"
+                                              :append-icon="showConfirmPwd ? 'mdi-eye' : 'mdi-eye-off'"
+                                              :type="showConfirmPwd ? 'text' : 'password'" label="Confirm Password"
+                                              :rules="[passwordRules,(this.confirmPwd === this.password) || 'Password and confirm password must be same.']"
+                                              counter @click:append="showConfirmPwd = !showConfirmPwd"></v-text-field>
+                                <!-- set role -->
+                                {#                                <v-autocomplete :disabled="!isEditing" :items="states" :filter="customFilter"#}
+                                {#                                                color="white" item-text="name" label="role"></v-autocomplete>#}
+                                <v-text-field disabled=true v-model="role"  label="Role"
+                                              required></v-text-field>
+                            </v-form>
+                        </v-card-text>
+                        <v-divider></v-divider>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn :loading="isLoading" :disabled="!isEditing || !valid" color="success" @click="save()">
+                                Save
+                                <v-icon
+                                        right
+                                        dark
+                                >
+                                    mdi-cloud-upload
+                                </v-icon>
+                            </v-btn>
+                        </v-card-actions>
+                        <v-snackbar v-model="hasSaved" :timeout="2000" absolute bottom left>
+                            {{ '{{messageAlert}}' }}
+                        </v-snackbar>
+                    </v-card>
+                </v-tab-item>
+
+                <!-- Book management -->
+                <v-tab-item class="mx-auto my-12 px-10 rounded-xl" >
+
+                </v-tab-item>
+            </v-tabs-items>
+        </v-main>
+
+    </v-app>
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+<script src="{{  url_for('static',filename='js/constant.js') }}"></script>
+<!-- Vuetify -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+
+<script type="text/javascript">
+    var mixin = {
+        data : {
+            headers: {{ headers|tojson }},
+            {% if contents %}
+                contents: {{ contents|tojson }},
+            {% endif %}
+            user: {{ user_payload|tojson }},
+            token: {{token|tojson}}
+        }
+    }
+</script>
+<script src="{{  url_for('static',filename='js/book-vue.js') }}"></script>
+</body>
+</html>

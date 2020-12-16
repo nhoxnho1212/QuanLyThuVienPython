@@ -12,7 +12,7 @@ def ticks(dt):
     return (dt - datetime(1, 1, 1)).total_seconds() * 10000000
 @app.route('/')
 def home():
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
 @app.route('/index')
@@ -32,6 +32,7 @@ def index():
         { 'text': 'Last name', 'value': 'lastname' },
         { 'text': 'avatar', 'value': 'avatar' },
         { 'text': 'role', 'value': 'role' },
+        { 'text': 'function', 'value': 'employee_functions' },
         { 'text': 'Actions', 'value': 'actions', 'sortable': 'false' },
     ]
 
@@ -48,10 +49,19 @@ def index():
         contents = response.json()['payload']
 
         for content in contents:
-            if content['role'] == 'USER_ROLE.user':
-                content['role'] = 'user'
-            elif content['role'] == 'USER_ROLE.admin':
-                content['role'] = 'admin'
+            if content['role'] == 'USER_ROLE.NHAN_VIEN':
+                content['role'] = 'NHAN_VIEN'
+            elif content['role'] == 'USER_ROLE.MANAGER':
+                content['role'] = 'MANAGER'
+
+            if content['employee_functions'] == 'EMPLOYEE.NONE_FUNCTION':
+                content['employee_functions'] = 'NONE_FUNCTION'
+            if content['employee_functions'] == 'EMPLOYEE.THU_THU':
+                content['employee_functions'] = 'THU_THU'
+            if content['employee_functions'] == 'EMPLOYEE.THU_KHO':
+                content['employee_functions'] = 'THU_KHO'
+            if content['employee_functions'] == 'EMPLOYEE.THU_QUY':
+                content['employee_functions'] = 'THU_QUY'
 
 
         return render_template('admin-usermangerment.html', headers=headers, contents=contents, user_payload = session['payload'], token = session['token'],ver = ver)
@@ -102,16 +112,61 @@ def login():
             if response.status_code == 200:
                 session['token'] = response.json()["token"]
                 session['payload'] = response.json()['payload']
-                return redirect(url_for('index'))
+                payload = session['payload']
+                if payload['role'] =='USER_ROLE.admin_root' or payload['role'] == 'USER_ROLE.MANAGER':
+                    return redirect(url_for('index'))
+                elif payload['employee_functions'] == 'EMPLOYEE.NONE_FUNCTION' or payload['employee_functions'] =='EMPLOYEE.THU_KHO':
+                    return redirect(url_for('book_management'))
             else:
                 message = response.json()["error"]
         except Exception as e:
             message = "No Internet Connection!"
     if request.method == "GET":
-        if 'token' in session and 'payload' in session:
-            return redirect(url_for('index'))
+        if not ('token' in session and 'payload' in session):
+            return render_template('login.html', message=message)
+        else:
+            payload = session['payload']
+            if payload['role'] =='USER_ROLE.admin_root' or payload['role'] == 'USER_ROLE.MANAGER':
+                redirect(url_for('index'))
+            elif payload['employee_functions'] == 'EMPLOYEE.NONE_FUNCTION' or payload['EMPLOYEE.THU_THU']:
+                redirect(url_for('book_management'))
 
     return render_template('login.html', message=message)
+@app.route('/book-management')
+def book_management():
+    if 'token' not in session or 'payload' not in session:
+        return redirect(url_for('login'))
+    headers = [
+        {
+            'text': 'id',
+            'align': 'start',
+            'filterable': False,
+            'value': 'id',
+
+        },
+        { 'text': 'Email', 'value': 'email' },
+        { 'text': 'First name', 'value': 'firstname' },
+        { 'text': 'Last name', 'value': 'lastname' },
+        { 'text': 'avatar', 'value': 'avatar' },
+        { 'text': 'role', 'value': 'role' },
+        { 'text': 'function', 'value': 'employee_functions' },
+        { 'text': 'Actions', 'value': 'actions', 'sortable': 'false' },
+    ]
+
+    response = requests.get(url_api + "book",
+                            headers={
+                                'Content-Type':'application/json',
+                                'x-access-token': session['token']
+                            }
+                            )
+    contents = None
+
+    if response.status_code == 200:
+        contents = response.json()['payload']
+
+        return render_template('book-management.html', headers=headers, contents=contents, user_payload = session['payload'], token = session['token'])
+    return render_template('book-management.html', headers=headers, user_payload = session['payload'], token = session['token'])
+
 
 @app.route('/logout')
 def logout():
