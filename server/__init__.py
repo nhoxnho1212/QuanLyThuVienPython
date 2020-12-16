@@ -11,6 +11,8 @@ def create_app(fileConfig = None):
     with app.app_context():
         # from . import routes  # Import routes
         from server.api.routes import user_route
+        from server.api.routes import book_route
+
         # from server.webApp import view
         db.create_all()  # Create sql tables for our data models
 

@@ -17,7 +17,8 @@ class UserSchema(ModelSchema):
     firstname = fields.String(required=True)
     lastname = fields.String(required=True)
     avatar = fields.String(default="", missing= "")
-    role = fields.String(default=Constant.ROLE["USER_ROLE"].user.value, missing=Constant.ROLE["USER_ROLE"].user.value)
+    role = fields.String(default=Constant.ROLE["USER_ROLE"].NHAN_VIEN.value, missing=Constant.ROLE["USER_ROLE"].NHAN_VIEN.value)
+    employee_functions = fields.String(default=Constant.FUNCTIONS["EMPLOYEE"].NONE_FUNCTION.value, missing=Constant.FUNCTIONS["EMPLOYEE"].NONE_FUNCTION.value)
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
 

@@ -15,7 +15,7 @@ class User_controler(Resource):
     @token_required
     def get(self, current_user, user_id):
         if current_user.id != user_id:
-            if not current_user.role == Constant.ROLE["USER_ROLE"].admin_root and not current_user.role == Constant.ROLE["USER_ROLE"].admin:
+            if not current_user.role == Constant.ROLE["USER_ROLE"].admin_root and not current_user.role == Constant.ROLE["USER_ROLE"].MANAGER:
                 return {"error": Constant.STATUS_CODE.UNAUTHORIZED.name}, Constant.STATUS_CODE.UNAUTHORIZED.value
         try:
             get_user = User.query.get(user_id)
@@ -33,7 +33,7 @@ class User_controler(Resource):
     @token_required
     def put(self,current_user, user_id):
         if current_user.id != user_id:
-            if not current_user.role == Constant.ROLE["USER_ROLE"].admin_root and not current_user.role == Constant.ROLE["USER_ROLE"].admin:
+            if not current_user.role == Constant.ROLE["USER_ROLE"].admin_root and not current_user.role == Constant.ROLE["USER_ROLE"].MANAGER:
                 return {"error": Constant.STATUS_CODE.UNAUTHORIZED.name}, Constant.STATUS_CODE.UNAUTHORIZED.value
         try:
             data = request.get_json()
@@ -51,6 +51,9 @@ class User_controler(Resource):
                 user.avatar = data['avatar']
             if data.get('role'):
                 user.role = data["role"]
+            if data.get('employee_functions'):
+                user.employee_functions = data["employee_functions"]
+
             db.session.add(user)
             db.session.commit()
         except Exception as e:
@@ -58,13 +61,13 @@ class User_controler(Resource):
             db.session.rollback()
             return {"error": Constant.STATUS_CODE.INTERNAL_SERVER_ERROR.name}, Constant.STATUS_CODE.INTERNAL_SERVER_ERROR.value
 
-        user_schema = UserSchema(only=['firstname', 'lastname', 'avatar','role'])
+        user_schema = UserSchema(only=['firstname', 'lastname', 'avatar','role','employee_functions'])
         usermodify = user_schema.dump(user)
         return {"payload": usermodify},  Constant.STATUS_CODE.OK.value
 
     @token_required
     def delete(self,current_user, user_id):
-        if not current_user.role == Constant.ROLE["USER_ROLE"].admin_root and not current_user.role == Constant.ROLE["USER_ROLE"].admin:
+        if not current_user.role == Constant.ROLE["USER_ROLE"].admin_root and not current_user.role == Constant.ROLE["USER_ROLE"].MANAGER:
             return {"error": Constant.STATUS_CODE.UNAUTHORIZED.name}, Constant.STATUS_CODE.UNAUTHORIZED.value
         try:
             get_user = User.query.get(user_id)

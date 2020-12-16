@@ -41,7 +41,13 @@ class User(db.Model):
 
     role = db.Column(
         db.Enum(Constant.ROLE['USER_ROLE']),
-        default=Constant.ROLE['USER_ROLE'].user,
+        default=Constant.ROLE['USER_ROLE'].NHAN_VIEN,
+        nullable=False
+    )
+
+    employee_functions = db.Column(
+        db.Enum(Constant.FUNCTIONS["EMPLOYEE"]),
+        default=Constant.FUNCTIONS["EMPLOYEE"].NONE_FUNCTION,
         nullable=False
     )
 
@@ -64,12 +70,12 @@ class User(db.Model):
         db.session.commit()
         return self
     
-    def __init__(self, email, firstname, lastname, password, avatar, role):
+    def __init__(self, email, firstname, lastname, password, avatar, role, employee_functions):
         self.email = email
         self.firstname = firstname
         self.lastname = lastname
         self.password = password
         self.avatar = avatar
         self.role = role
-    def __repr__(self):
-        return '' % self.id
+        self.employee_functions = employee_functions
+

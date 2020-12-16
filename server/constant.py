@@ -7,9 +7,21 @@ class Constant:
         'USER_ROLE': Enum(
             value='USER_ROLE',
             names=[
-                ('user', 'user'),
-                ('admin', 'admin'),
-                ('admin_root', 'admin_root')
+                ('NHAN_VIEN', 'NHAN_VIEN'),
+                ('MANAGER', 'MANAGER'),
+                ('admin_root', 'admin_root'),
+            ]
+        )
+    }
+
+    FUNCTIONS = {
+        'EMPLOYEE': Enum(
+            value='EMPLOYEE',
+            names=[
+                ('THU_THU', 'THU_THU'),
+                ('THU_KHO', 'THU_KHO'),
+                ('THU_QUY', 'THU_QUY'),
+                ('NONE_FUNCTION', 'NONE_FUNCTION')
             ]
         )
     }
