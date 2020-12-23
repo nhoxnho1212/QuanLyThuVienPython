@@ -115,7 +115,7 @@ def login():
                 payload = session['payload']
                 if payload['role'] =='USER_ROLE.admin_root' or payload['role'] == 'USER_ROLE.MANAGER':
                     return redirect(url_for('index'))
-                elif payload['employee_functions'] == 'EMPLOYEE.NONE_FUNCTION' or payload['employee_functions'] =='EMPLOYEE.THU_KHO':
+                elif  payload['employee_functions'] =='EMPLOYEE.THU_KHO' or payload['employee_functions'] =='EMPLOYEE.THU_THU':
                     return redirect(url_for('book_management'))
             else:
                 message = response.json()["error"]
@@ -144,12 +144,11 @@ def book_management():
             'value': 'id',
 
         },
-        { 'text': 'Email', 'value': 'email' },
-        { 'text': 'First name', 'value': 'firstname' },
-        { 'text': 'Last name', 'value': 'lastname' },
-        { 'text': 'avatar', 'value': 'avatar' },
-        { 'text': 'role', 'value': 'role' },
-        { 'text': 'function', 'value': 'employee_functions' },
+        { 'text': 'Name', 'value': 'name' },
+        { 'text': 'Author', 'value': 'author' },
+        { 'text': 'Category', 'value': 'category' },
+        { 'text': 'Image', 'value': 'image' },
+        { 'text': 'STAFF ID', 'value': 'user_id' },
         { 'text': 'Actions', 'value': 'actions', 'sortable': 'false' },
     ]
 

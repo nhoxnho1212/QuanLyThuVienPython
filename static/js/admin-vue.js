@@ -65,7 +65,7 @@ var vmAdmin = new Vue({
     },
     watch: {
         isEditing: function(oldval, newval) {
-            if (newval) {
+            if (!newval) {
                 this.hasSaved = false;
             } else {
                 this.hasSaved = true;

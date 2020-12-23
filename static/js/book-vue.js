@@ -10,23 +10,13 @@ var vmAdmin = new Vue({
         search: '',
         editedIndex: -1,
         editedItem: {
-            firstname: '',
-            lastName: '',
-            email: '',
-            role: 'NHAN_VIEN',
-            employee_functions: 'NONE_FUNCTION',
-            password: '',
-            avatar: '',
+            name: '',
+            author: '',
+            category: '',
+            user_id: '',
+            image: '',
         },
-        defaultItem: {
-            firstname: '',
-            lastName: '',
-            email: '',
-            role: 'NHAN_VIEN',
-            employee_functions: 'NONE_FUNCTION',
-            password: '',
-            avatar: '',
-        },
+
         // user profile
         hasSaved: false,
         isEditing: null,
@@ -65,7 +55,7 @@ var vmAdmin = new Vue({
     },
     watch: {
         isEditing: function(oldval, newval) {
-            if (newval) {
+            if (!newval) {
                 this.hasSaved = false;
             } else {
                 this.hasSaved = true;
@@ -97,6 +87,15 @@ var vmAdmin = new Vue({
                    default:
                        return  ""
                }
+        },
+        defaultItem() {
+            return {
+                name: '',
+                author: '',
+                category: '',
+                image: '',
+                user_id: this.user['id'],
+            }
         },
 
     },
@@ -208,7 +207,7 @@ var vmAdmin = new Vue({
 
         deleteItemConfirm: async function () {
             try  {
-                let response = await fetch(URL_API_USER.UPDATE +'/'+ String(this.editedItem['id']), {
+                let response = await fetch(URL_API_BOOK.UPDATE +'/'+ String(this.editedItem['id']), {
                     method: "DELETE",
                     headers: {
                         'Access-Control-Allow-Origin': '*',
@@ -251,19 +250,13 @@ var vmAdmin = new Vue({
             if (this.editedIndex > -1) {
                 try  {
                     let payloadreq =  {
-                        'firstname': await this.editedItem['firstname'],
-                        'lastname':await this.editedItem['lastname'],
-                        'email':await this.editedItem['email'],
-                        'role':await this.editedItem['role'],
-                        'password':await this.editedItem['password'],
-                        'avatar':await this.editedItem['avatar'],
+                        'name': await this.editedItem['name'],
+                        'author':await this.editedItem['author'],
+                        'category':await this.editedItem['category'],
+                        'image':await this.editedItem['image'],
                     }
-                    if (payloadreq.role === 'NHAN_VIEN')  {
-                        payloadreq['employee_functions'] = this.editedItem['employee_functions']
-                    } else {
-                        payloadreq['employee_functions'] = "NONE_FUNCTION"
-                    }
-                    let response = await fetch(URL_API_USER.UPDATE +'/'+ String(this.editedItem['id']), {
+
+                    let response = await fetch(URL_API_BOOK.UPDATE +'/'+ String(this.editedItem['id']), {
                         method: "PUT",
                         headers: {
                             'Access-Control-Allow-Origin': '*',
@@ -276,7 +269,7 @@ var vmAdmin = new Vue({
                     let payload = await response.json();
                     if (status === 200) {
                         Object.assign(this.contents[this.editedIndex], this.editedItem)
-                        this.messageAlert = await "User infomation updated !";
+                        this.messageAlert = await "Book infomation updated !";
                         this.snackbar = true;
                     }
                     else {
@@ -293,19 +286,13 @@ var vmAdmin = new Vue({
             } else {
             try{
                 let payloadreq =  {
-                    'firstname': await this.editedItem['firstname'],
-                    'lastname':await this.editedItem['lastname'],
-                    'email':await this.editedItem['email'],
-                    'role':await this.editedItem['role'],
-                    'password':await this.editedItem['password'],
-                    'avatar':await this.editedItem['avatar'],
+                    'name': await this.editedItem['name'],
+                    'author':await this.editedItem['author'],
+                    'category':await this.editedItem['category'],
+                    'image':await this.editedItem['image'],
                 }
-                if (payloadreq.role === 'NHAN_VIEN')  {
-                    payloadreq['employee_functions'] = this.editedItem['employee_functions']
-                } else {
-                    payloadreq['employee_functions'] = "NONE_FUNCTION"
-                }
-                let response = await fetch(URL_API_USER.UPDATE, {
+
+                let response = await fetch(URL_API_BOOK.UPDATE, {
                     method: "POST",
                     headers: {
                         'Access-Control-Allow-Origin': '*',
@@ -318,7 +305,7 @@ var vmAdmin = new Vue({
                 let payload = await response.json();
                 if (status == 200) {
                     this.contents.push(await Object.assign({}, this.editedItem, {'id': payload.payload['id']}))
-                    this.messageAlert = await "User created !";
+                    this.messageAlert = await "Book created !";
                     this.snackbar = true;
                 }
                 else {
